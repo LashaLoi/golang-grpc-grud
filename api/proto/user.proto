@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package api;
+
+service UserService {
+  rpc Add(AddRequest) returns (UserResponse) {}
+  rpc ReadAll(ReadAllRequest) returns (ReadAllResponse) {}
+  rpc Read(ReadRequest) returns (UserResponse) {}
+  rpc Update(UpdateRequest) returns (UserResponse) {}
+  rpc Delete(DeleteRequest) returns (UserResponse) {}
+}
+
+message User {
+  int32 id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+}
+
+message UserResponse {
+  User user = 1;
+}
+
+message AddRequest {
+  string firstName = 1;
+  string lastName = 2;
+  string email = 3;
+}
+
+
+message ReadAllRequest {}
+message ReadAllResponse {
+  repeated User users = 1;
+}
+
+message ReadRequest {
+  int32 id = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+}
