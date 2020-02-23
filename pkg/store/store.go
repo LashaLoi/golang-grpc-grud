@@ -1,48 +1,34 @@
 package store
 
 import (
-	"context"
+	"database/sql"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
+	_ "github.com/lib/pq"
 )
 
-// Store ...
-type Store struct {
-	config *Config
-}
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "grpcdb"
+)
 
-// New ...
-func New(config *Config) *Store {
-	return &Store{config: config}
-}
+func Connect() (*sql.DB, error) {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
 
-// Open ...
-func (s *Store) Open() error {
-	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-
-	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	// Check the connection
-	err = client.Ping(context.TODO(), nil)
-
-	if err != nil {
-		log.Fatal(err)
+	if err = db.Ping(); err != nil {
+		return nil, err
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	fmt.Println("Successfully connected!")
 
-	return nil
-}
-
-// Close ...
-func (s *Store) Close() {
-
+	return db, nil
 }
