@@ -6,7 +6,6 @@ service UserService {
   rpc Add(AddRequest) returns (UserResponse) {}
   rpc ReadAll(ReadAllRequest) returns (ReadAllResponse) {}
   rpc Read(ReadRequest) returns (UserResponse) {}
-  rpc Update(UpdateRequest) returns (UserResponse) {}
   rpc Delete(DeleteRequest) returns (UserResponse) {}
 }
 
@@ -35,13 +34,6 @@ message ReadAllResponse {
 
 message ReadRequest {
   int32 id = 1;
-}
-
-message UpdateRequest {
-  int32 id = 1;
-  string firstName = 2;
-  string lastName = 3;
-  string email = 4;
 }
 
 message DeleteRequest {
