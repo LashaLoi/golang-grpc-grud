@@ -2,6 +2,7 @@ package main
 
 import (
 	"grpc-grud/pkg/api"
+	"grpc-grud/pkg/store"
 	"grpc-grud/pkg/user"
 	"log"
 	"net"
@@ -10,10 +11,16 @@ import (
 )
 
 func main() {
-	s := grpc.NewServer()
-	srv := user.GRPCServer{}
+	db, err := store.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	api.RegisterUserServiceServer(s, &srv)
+	s := grpc.NewServer()
+	srv := user.NewGRPCServer(db)
+
+	api.RegisterUserServiceServer(s, srv)
 
 	l, err := net.Listen("tcp", ":8080")
 	if err != nil {
