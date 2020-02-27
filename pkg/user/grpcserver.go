@@ -2,25 +2,25 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"grpc-grud/pkg/api"
 	"math/rand"
+
+	"database/sql"
 )
 
-// GRPCServer ...
+// GRPCServer server struct
 type GRPCServer struct {
 	db *sql.DB
 }
 
-// NewGRPCServer ...
+// NewGRPCServer func for creating new grpc server
 func NewGRPCServer(db *sql.DB) *GRPCServer {
 	return &GRPCServer{
 		db: db,
 	}
 }
 
-// Add ...
-func (s *GRPCServer) Add(ctx context.Context, req *api.AddRequest) (*api.UserResponse, error) {
+// Add handler for adding user to db
+func (s *GRPCServer) Add(ctx context.Context, req *AddRequest) (*UserResponse, error) {
 	var id int32
 	var email string
 	var firstName string
@@ -34,8 +34,7 @@ func (s *GRPCServer) Add(ctx context.Context, req *api.AddRequest) (*api.UserRes
 	).Scan(&id, &email, &firstName, &lastName); err != nil {
 		return nil, err
 	}
-
-	return &api.UserResponse{User: &api.User{
+	return &UserResponse{User: &User{
 		Id:        id,
 		FirstName: firstName,
 		LastName:  lastName,
@@ -43,9 +42,9 @@ func (s *GRPCServer) Add(ctx context.Context, req *api.AddRequest) (*api.UserRes
 	}}, nil
 }
 
-// ReadAll ...
-func (s *GRPCServer) ReadAll(ctx context.Context, req *api.ReadAllRequest) (*api.ReadAllResponse, error) {
-	users := []*api.User{}
+// ReadAll handler for read all users from db
+func (s *GRPCServer) ReadAll(ctx context.Context, req *ReadAllRequest) (*ReadAllResponse, error) {
+	var users []*User
 
 	rows, err := s.db.Query(`SELECT id, email, firstname, lastname FROM users`)
 	if err != nil {
@@ -62,7 +61,7 @@ func (s *GRPCServer) ReadAll(ctx context.Context, req *api.ReadAllRequest) (*api
 			return nil, err
 		}
 
-		user := &api.User{
+		user := &User{
 			Id:        id,
 			FirstName: firstName,
 			LastName:  lastName,
@@ -71,12 +70,11 @@ func (s *GRPCServer) ReadAll(ctx context.Context, req *api.ReadAllRequest) (*api
 
 		users = append(users, user)
 	}
-
-	return &api.ReadAllResponse{Users: users}, nil
+	return &ReadAllResponse{Users: users}, nil
 }
 
-// Read ...
-func (s *GRPCServer) Read(ctx context.Context, req *api.ReadRequest) (*api.UserResponse, error) {
+// Read handler for read user by id from db
+func (s *GRPCServer) Read(ctx context.Context, req *ReadRequest) (*UserResponse, error) {
 	var email string
 	var firstName string
 	var lastName string
@@ -87,8 +85,7 @@ func (s *GRPCServer) Read(ctx context.Context, req *api.ReadRequest) (*api.UserR
 	).Scan(&id, &lastName, &email, &firstName); err != nil {
 		return nil, err
 	}
-
-	return &api.UserResponse{User: &api.User{
+	return &UserResponse{User: &User{
 		Id:        req.GetId(),
 		FirstName: firstName,
 		LastName:  lastName,
@@ -96,8 +93,8 @@ func (s *GRPCServer) Read(ctx context.Context, req *api.ReadRequest) (*api.UserR
 	}}, nil
 }
 
-// Delete ...
-func (s *GRPCServer) Delete(ctx context.Context, req *api.DeleteRequest) (*api.UserResponse, error) {
+// Delete handler for deleting user by id from db
+func (s *GRPCServer) Delete(ctx context.Context, req *DeleteRequest) (*UserResponse, error) {
 	var email string
 	var firstName string
 	var lastName string
@@ -106,9 +103,8 @@ func (s *GRPCServer) Delete(ctx context.Context, req *api.DeleteRequest) (*api.U
 		req.GetId()).Scan(&email, &firstName, &lastName); err != nil {
 		return nil, err
 	}
-
-	return &api.UserResponse{
-		User: &api.User{
+	return &UserResponse{
+		User: &User{
 			Id:        req.GetId(),
 			FirstName: firstName,
 			LastName:  lastName,

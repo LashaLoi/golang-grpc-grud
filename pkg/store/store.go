@@ -1,8 +1,10 @@
 package store
 
 import (
-	"database/sql"
 	"fmt"
+
+	"database/sql"
+
 	_ "github.com/lib/pq"
 )
 
@@ -14,6 +16,7 @@ const (
 	dbname   = "grpcdb"
 )
 
+// Connect to postgres db
 func Connect() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -23,12 +26,10 @@ func Connect() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 
 	fmt.Println("Successfully connected!")
-
 	return db, nil
 }

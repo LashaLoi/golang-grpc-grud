@@ -1,20 +1,22 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"google.golang.org/grpc"
-	"grpc-grud/pkg/api"
 	"log"
+
+	"grpc-grud/pkg/user"
+
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
 func main() {
 	conn, err := grpc.Dial(":8080", grpc.WithInsecure())
 	if err != nil {
-		log.Fatal(err)
+		errors.Wrap(err, "Unable to connect")
 	}
 
-	c := api.NewUserServiceClient(conn)
+	c := user.NewUserServiceClient(conn)
 
 	var action string
 
@@ -23,54 +25,13 @@ func main() {
 
 	switch action {
 	case "create":
-		fmt.Println("Creating schema: firstname lastname email")
-		var email string
-		var firstName string
-		var lastName string
-
-		fmt.Scanf("%s %s %s", &firstName, &lastName,  &email)
-
-		u, err := c.Add(context.Background(), &api.AddRequest{
-			FirstName: firstName,
-			LastName:  lastName,
-			Email:     email,
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(u)
+		Create(c)
 	case "read:all":
-		us, err := c.ReadAll(context.Background(), &api.ReadAllRequest{})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(us)
+		ReadAll(c)
 	case "read":
-		fmt.Println("Read schema: id")
-		var id int32
-
-		fmt.Scanf("%d", &id)
-
-		u, err := c.Read(context.Background(), &api.ReadRequest{Id:id})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(u)
+		Read(c)
 	case "delete":
-		fmt.Println("Read schema: id")
-		var id int32
-
-		fmt.Scanf("%d", &id)
-
-		u, err := c.Delete(context.Background(), &api.DeleteRequest{Id:id})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(u)
+		Delete(c)
 	default:
 		log.Fatal("Invalid action")
 	}
